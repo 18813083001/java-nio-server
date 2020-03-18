@@ -4,6 +4,7 @@ import com.jenkov.nioserver.*;
 import com.jenkov.nioserver.http.HttpMessageReaderFactory;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -22,21 +23,23 @@ public class Main {
 
 
 
-        IMessageProcessor messageProcessor = (request, writeProxy) -> {
-            String httpResponse = "HTTP/1.1 200 OK\r\n" +
-                    "Content-Length: 38\r\n" +
-                    "Content-Type: text/html\r\n" +
-                    "\r\n" +
-                    "<html><body>Hello World!"+Math.random()+"</body></html>";
+        IMessageProcessor messageProcessor = new IMessageProcessor() {
+            public void process(Message request, WriteProxy writeProxy) throws UnsupportedEncodingException {
+                String httpResponse = "HTTP/1.1 200 OK\r\n" +
+                        "Content-Length: 38\r\n" +
+                        "Content-Type: text/html\r\n" +
+                        "\r\n" +
+                        "<html><body>Hello World!</body></html>";
 
-            byte[] httpResponseBytes = httpResponse.getBytes("UTF-8");
-            System.out.println("Message Received from socketId: " + request.socketId);
+                byte[] httpResponseBytes = httpResponse.getBytes("UTF-8");
+                System.out.println("Message Received from socketId: " + request.socketId);
 
-            Message response = writeProxy.getMessage();
-            response.socketId = request.socketId;
-            response.writeToMessage(httpResponseBytes);
+                Message response = writeProxy.getMessage();
+                response.socketId = request.socketId;
+                response.writeToMessage(httpResponseBytes);
 
-            writeProxy.enqueue(response);
+                writeProxy.enqueue(response);
+            }
         };
 
         Server server = new Server(9090, new HttpMessageReaderFactory(), messageProcessor);

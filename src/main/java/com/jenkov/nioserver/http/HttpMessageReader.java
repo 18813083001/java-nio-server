@@ -33,11 +33,21 @@ public class HttpMessageReader implements IMessageReader {
 
     @Override
     public void read(Socket socket, ByteBuffer byteBuffer) throws IOException {
+
         int bytesRead = socket.read(byteBuffer);
+        while (bytesRead != -1){
+            System.out.println("Message Size "+bytesRead+ " "+socket.socketId);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            bytesRead = socket.read(byteBuffer);
+        }
 //        byte[] b = byteBuffer.array();
 //        System.out.println(new java.lang.String(b,"utf-8"));
         byteBuffer.flip();
-        System.out.println("Message Size "+bytesRead+ " "+socket.socketId);
+//        System.out.println("Message Size "+bytesRead+ " "+socket.socketId);
 
         if(byteBuffer.remaining() == 0){
             byteBuffer.clear();

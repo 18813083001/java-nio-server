@@ -108,8 +108,19 @@ public class SocketProcessor implements Runnable {
 
             while(keyIterator.hasNext()) {
                 SelectionKey key = keyIterator.next();
+                // This is a must, so that we don't have multiple threads messing with the socket
+                key.interestOps(key.interestOps() & (~key.readyOps()));
+                new Thread(){
+                    @Override
+                    public void run() {
+                        try {
+                            readFromSocket(key);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }.start();
 
-                readFromSocket(key);
 
                 keyIterator.remove();
             }
@@ -123,6 +134,7 @@ public class SocketProcessor implements Runnable {
 
         List<Message> fullMessages = socket.messageReader.getMessages();
         if(fullMessages.size() > 0){
+            System.out.println("信息长度："+readByteBuffer.remaining());
             for(Message message : fullMessages){
                 message.socketId = socket.socketId;
                 this.messageProcessor.process(message, this.writeProxy);  //the message processor will eventually push outgoing messages into an IMessageWriter for this socket.
@@ -179,7 +191,21 @@ public class SocketProcessor implements Runnable {
 
     private void registerNonEmptySockets() throws ClosedChannelException {
         for(Socket socket : emptyToNonEmptySockets){
-            socket.socketChannel.register(this.writeSelector, SelectionKey.OP_WRITE, socket);
+            socket.selectionKey = socket.socketChannel.register(this.writeSelector, SelectionKey.OP_WRITE, socket);
+
+
+            while ((socket.selectionKey.interestOps() & SelectionKey.OP_WRITE) == 0){
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("socket "+socket.socketId+" : 没有写事件");
+            }
+
+            System.out.println("-----------socket "+socket.socketId+" : 有了写事件---------");
+
+
         }
         emptyToNonEmptySockets.clear();
     }
@@ -188,7 +214,7 @@ public class SocketProcessor implements Runnable {
         for(Socket socket : nonEmptyToEmptySockets){
             SelectionKey key = socket.socketChannel.keyFor(this.writeSelector);
 
-            key.cancel();
+//            key.cancel();
         }
         nonEmptyToEmptySockets.clear();
     }

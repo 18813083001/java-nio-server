@@ -25,7 +25,7 @@ public class Server {
 
     public void start() throws IOException {
 
-        Queue socketQueue = new ArrayBlockingQueue(1024); //move 1024 to ServerConfig
+        Queue socketQueue = new ArrayBlockingQueue(6000); //move 1024 to ServerConfig
 
         this.socketAccepter  = new SocketAccepter(tcpPort, socketQueue);
 

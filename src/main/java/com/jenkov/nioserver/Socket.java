@@ -2,6 +2,7 @@ package com.jenkov.nioserver;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 /**
@@ -10,6 +11,7 @@ import java.nio.channels.SocketChannel;
 public class Socket {
 
     public long socketId;
+    public volatile SelectionKey selectionKey;
 
     public SocketChannel  socketChannel = null;
     public IMessageReader messageReader = null;

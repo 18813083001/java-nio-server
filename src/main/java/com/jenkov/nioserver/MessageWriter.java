@@ -34,14 +34,14 @@ public class MessageWriter {
         this.bytesWritten += socket.write(byteBuffer);
         byteBuffer.clear();
 
-        if(bytesWritten >= this.messageInProgress.length){
-            if(this.writeQueue.size() > 0){
-                this.messageInProgress = this.writeQueue.remove(0);
-            } else {
-                this.messageInProgress = null;
-                //todo unregister from selector
-            }
-        }
+//        if(bytesWritten >= this.messageInProgress.length){
+//            if(this.writeQueue.size() > 0){
+//                this.messageInProgress = this.writeQueue.remove(0);
+//            } else {
+//                this.messageInProgress = null;
+//                //todo unregister from selector
+//            }
+//        }
     }
 
     public boolean isEmpty() {
