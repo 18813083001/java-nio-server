@@ -8,6 +8,8 @@ import com.sun.org.apache.xpath.internal.operations.String;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,15 +37,14 @@ public class HttpMessageReader implements IMessageReader {
     public void read(Socket socket, ByteBuffer byteBuffer) throws IOException {
 
         int bytesRead = socket.read(byteBuffer);
-        while (bytesRead != -1){
-            System.out.println("Message Size "+bytesRead+ " "+socket.socketId);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            bytesRead = socket.read(byteBuffer);
-        }
+        System.out.println("Message Size "+bytesRead+ " "+socket.socketId);
+
+        Selector sharedSelector = Selector.open();
+        SelectionKey key = socket.getSocketChannel().keyFor(sharedSelector);
+
+        bytesRead = socket.read(byteBuffer);
+
+
 //        byte[] b = byteBuffer.array();
 //        System.out.println(new java.lang.String(b,"utf-8"));
         byteBuffer.flip();

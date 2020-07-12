@@ -53,5 +53,11 @@ public class Socket {
         return totalBytesWritten;
     }
 
+    public SocketChannel getSocketChannel() {
+        return socketChannel;
+    }
 
+    public void setSocketChannel(SocketChannel socketChannel) {
+        this.socketChannel = socketChannel;
+    }
 }
